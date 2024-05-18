@@ -1,6 +1,5 @@
 import requests
 
-# Dados iniciais de cadastro
 cadastro = {
     'nomes': ['vinicius'],
     'cpf': ['56276462845'],
@@ -27,10 +26,8 @@ def forca_opcao(msg, options, msg_erro=None):
 
 def get_address_by_cep(cep):
     try:
-        # Remove any non-numeric characters from the CEP
         cep = ''.join(filter(str.isdigit, cep))
 
-        # Check if the CEP has the correct length
         if len(cep) != 8:
             return None, "CEP inválido. Deve conter 8 dígitos."
 
@@ -53,7 +50,7 @@ def get_address_by_cep(cep):
 
 
 def post_cadastro():
-    option = forca_opcao("Deseja cadastrar um novo cadastro? (sim/nao) ", ['sim', 'nao'])
+    option = forca_opcao("Deseja cadastrar um novo usu? (sim/nao) ", ['sim', 'nao'])
     if option == 'sim':
         cpf = input("CPF: ")
         if cpf in cadastro['cpf']:
@@ -105,7 +102,7 @@ def mostrar_cadastros():
     dicionario_de_indices = {cadastro["cpf"][i]: i for i in range(len(cadastro["cpf"]))}
     peixe = forca_opcao("Digite o cpf do cadastro que você deseja ver?\n"
                         , cadastro['cpf'], "\n".join(cadastro["cpf"]))
-    indice = dicionario_de_indices[peixe]
+    indice = dicionario_de_indices[cadastro]
     for key in cadastro.keys():
         print(f"{key} : {cadastro[key][indice]}")
     return
@@ -113,7 +110,8 @@ def mostrar_cadastros():
 
 def main():
     while True:
-        print("\nMenu de Cadastro")
+        print("!Muito bem vindo ao sistema de cadastro do Hospital das Clínicas!")
+        print("\nSelecione o que gostaria de fazer:")
         print("1. Inserir novo cadastro")
         print("2. Visualizar cadastro")
         print("3. Remover cadastro")
