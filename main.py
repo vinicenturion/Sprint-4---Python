@@ -1,4 +1,4 @@
- import requests
+import requests
 
 cadastro = {
     'nomes': ['vinicius'],
@@ -6,11 +6,16 @@ cadastro = {
     'rg': [502994903],
     'nasc': ['11/02/2004'],
     'email': ['viniciciuscmalvero@hotmail.com'],
-    'cep': ['03319000'],
-    "Logradouro": ['Rua cantagalo'],
-    "Bairro": ['Vila Gomes Cardim'],
-    "Cidade": ['São Paulo'],
-    "Estado": ['SP']
+    'cep': ['03319000']
+}
+
+enderecos = {
+    '56276462845': {
+        "Logradouro": 'Rua cantagalo',
+        "Bairro": 'Vila Gomes Cardim',
+        "Cidade": 'São Paulo',
+        "Estado": 'SP'
+    }
 }
 
 
@@ -57,8 +62,19 @@ def validar_cpf(cpf):
 def post_cadastro():
     option = forca_opcao("Deseja cadastrar um novo usuário? (sim/nao) ", ['sim', 'nao'])
     if option == 'sim':
-        cpf = input("CPF: ")
-        cpf, erro = validar_cpf(cpf)
+        dados_basicos = {
+            'nomes': '',
+            'cpf': '',
+            'rg': '',
+            'nasc': '',
+            'email': '',
+            'cep': ''
+        }
+
+        for key in dados_basicos.keys():
+            dados_basicos[key] = input(f'{key.capitalize()}: ')
+
+        cpf, erro = validar_cpf(dados_basicos['cpf'])
         if erro:
             print(erro)
             return
@@ -67,27 +83,24 @@ def post_cadastro():
             print("CPF já cadastrado!")
             return
 
-        rg = input("RG: ")
-        email = input("Email: ")
-        nome = input("Nome: ")
-        data_nascimento = input("Data de Nascimento (dd/mm/aaaa): ")
-        cep = input("CEP: ")
-
-        endereco, erro = get_address_by_cep(cep)
+        endereco, erro = get_address_by_cep(dados_basicos['cep'])
         if erro:
             print(erro)
-        else:
-            cadastro['nomes'].append(nome)
-            cadastro['cpf'].append(cpf)
-            cadastro['rg'].append(rg)
-            cadastro['nasc'].append(data_nascimento)
-            cadastro['email'].append(email)
-            cadastro['cep'].append(cep)
-            cadastro['Logradouro'].append(endereco.get('logradouro', ''))
-            cadastro['Bairro'].append(endereco.get('bairro', ''))
-            cadastro['Cidade'].append(endereco.get('localidade', ''))
-            cadastro['Estado'].append(endereco.get('uf', ''))
-            print("Cadastro adicionado com sucesso!")
+            return
+
+        
+        for key, value in dados_basicos.items():
+            cadastro[key].append(value)
+
+        
+        enderecos[cpf] = {
+            "Logradouro": endereco.get('logradouro', ''),
+            "Bairro": endereco.get('bairro', ''),
+            "Cidade": endereco.get('localidade', ''),
+            "Estado": endereco.get('uf', '')
+        }
+
+        print("Cadastro adicionado com sucesso!")
     else:
         print("Cadastro não realizado.")
     return cadastro
@@ -106,6 +119,7 @@ def delete_cadastro():
             index = cadastro['cpf'].index(cpf)
             for key in cadastro.keys():
                 cadastro[key].pop(index)
+            enderecos.pop(cpf, None)
             print("Cadastro removido com sucesso!")
         else:
             print("CPF não encontrado.")
@@ -118,11 +132,19 @@ def mostrar_cadastros():
         print("Nenhum cadastro disponível.")
         return
 
-    dicionario_de_indices = {cadastro["cpf"][i]: i for i in range(len(cadastro["cpf"]))}
     cpf = forca_opcao("Digite o CPF do cadastro que você deseja ver?\n", cadastro['cpf'], "\n".join(cadastro["cpf"]))
-    indice = dicionario_de_indices[cpf]
+    if cpf not in cadastro['cpf']:
+        print("CPF não encontrado.")
+        return
+
+    index = cadastro['cpf'].index(cpf)
     for key in cadastro.keys():
-        print(f"{key} : {cadastro[key][indice]}")
+        print(f"{key.capitalize()}: {cadastro[key][index]}")
+
+    endereco = enderecos.get(cpf, {})
+    for key, value in endereco.items():
+        print(f"{key}: {value}")
+
     return
 
 
@@ -152,4 +174,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
