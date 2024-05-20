@@ -1,4 +1,4 @@
-import requests
+ import requests
 
 cadastro = {
     'nomes': ['vinicius'],
@@ -34,10 +34,8 @@ def get_address_by_cep(cep):
         url = f"https://viacep.com.br/ws/{cep}/json/"
         response = requests.get(url)
 
-
         if response.status_code == 200:
             address_data = response.json()
-
 
             if 'erro' in address_data:
                 return None, "CEP não encontrado."
@@ -49,10 +47,22 @@ def get_address_by_cep(cep):
         return None, f"Ocorreu um erro: {e}"
 
 
+def validar_cpf(cpf):
+    cpf = ''.join(filter(str.isdigit, cpf))
+    if len(cpf) != 11:
+        return None, "CPF inválido. Deve conter 11 dígitos."
+    return cpf, None
+
+
 def post_cadastro():
-    option = forca_opcao("Deseja cadastrar um novo usu? (sim/nao) ", ['sim', 'nao'])
+    option = forca_opcao("Deseja cadastrar um novo usuário? (sim/nao) ", ['sim', 'nao'])
     if option == 'sim':
         cpf = input("CPF: ")
+        cpf, erro = validar_cpf(cpf)
+        if erro:
+            print(erro)
+            return
+
         if cpf in cadastro['cpf']:
             print("CPF já cadastrado!")
             return
@@ -87,6 +97,11 @@ def delete_cadastro():
     option = forca_opcao("Deseja remover um cadastro? (sim/nao) ", ['sim', 'nao'])
     if option == 'sim':
         cpf = input("Digite o CPF do cadastro que deseja remover: ")
+        cpf, erro = validar_cpf(cpf)
+        if erro:
+            print(erro)
+            return
+
         if cpf in cadastro['cpf']:
             index = cadastro['cpf'].index(cpf)
             for key in cadastro.keys():
@@ -99,10 +114,13 @@ def delete_cadastro():
 
 
 def mostrar_cadastros():
+    if not cadastro['cpf']:
+        print("Nenhum cadastro disponível.")
+        return
+
     dicionario_de_indices = {cadastro["cpf"][i]: i for i in range(len(cadastro["cpf"]))}
-    peixe = forca_opcao("Digite o cpf do cadastro que você deseja ver?\n"
-                        , cadastro['cpf'], "\n".join(cadastro["cpf"]))
-    indice = dicionario_de_indices[cadastro]
+    cpf = forca_opcao("Digite o CPF do cadastro que você deseja ver?\n", cadastro['cpf'], "\n".join(cadastro["cpf"]))
+    indice = dicionario_de_indices[cpf]
     for key in cadastro.keys():
         print(f"{key} : {cadastro[key][indice]}")
     return
@@ -110,7 +128,7 @@ def mostrar_cadastros():
 
 def main():
     while True:
-        print("!Muito bem vindo ao sistema de cadastro do Hospital das Clínicas!")
+        print("!Muito bem-vindo ao sistema de cadastro do Hospital das Clínicas!")
         print("\nSelecione o que gostaria de fazer:")
         print("1. Inserir novo cadastro")
         print("2. Visualizar cadastro")
@@ -134,3 +152,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
