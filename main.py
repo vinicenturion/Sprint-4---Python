@@ -1,22 +1,8 @@
 import requests
 
-cadastro = {
-    'nomes': ['vinicius'],
-    'cpf': ['56276462845'],
-    'rg': [502994903],
-    'nasc': ['11/02/2004'],
-    'email': ['viniciciuscmalvero@hotmail.com'],
-    'cep': ['03319000']
-}
+cadastro = {}
 
-enderecos = {
-    '56276462845': {
-        "Logradouro": 'Rua cantagalo',
-        "Bairro": 'Vila Gomes Cardim',
-        "Cidade": 'São Paulo',
-        "Estado": 'SP'
-    }
-}
+enderecos = {}
 
 
 def forca_opcao(msg, options, msg_erro=None):
@@ -34,7 +20,7 @@ def get_address_by_cep(cep):
         cep = ''.join(filter(str.isdigit, cep))
 
         if len(cep) != 8:
-            return None, "CEP inválido. Deve conter 8 dígitos."
+            return "CEP inválido. Deve conter 8 dígitos."
 
         url = f"https://viacep.com.br/ws/{cep}/json/"
         response = requests.get(url)
